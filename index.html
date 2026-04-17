@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - M&P Performance</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#dc2626', // red-600
+                        secondary: '#991b1b', // red-900
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Modal Transition */
+        #alunoModal.show { display: flex; animation: fadeIn 0.2s ease-out forwards; }
+        #alunoModal.hide { animation: fadeOut 0.2s ease-in forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95); } }
+        
+        /* Table Row Animation */
+        .animate-fade-in {
+            animation: fadeInRow 0.3s ease-out forwards;
+        }
+        @keyframes fadeInRow {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* M&P Logo Branding */
+        .mp-logo {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-family: 'Orbitron', monospace;
+        }
+        .mp-logo-m {
+            font-weight: 900;
+            color: #6b8aad;
+            text-shadow: 0 0 10px rgba(107, 138, 173, 0.3);
+        }
+        .mp-logo-amp {
+            font-weight: 700;
+            color: #94a3b8;
+            font-size: 0.7em;
+        }
+        .mp-logo-p {
+            font-weight: 900;
+            color: #ff6b35;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+        }
+        .mp-logo-icon {
+            display: flex;
+            align-items: center;
+            gap: 1px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5));
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 12px;
+            padding: 6px 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .mp-logo-icon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(107,138,173,0.08), transparent 50%, rgba(255,107,53,0.08));
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans antialiased overflow-x-hidden">
+
+    <!-- SESSÃO DE LOGIN -->
+    <div id="loginSection" class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-100 to-red-100 relative overflow-hidden">
+        
+        <!-- Elementos decorativos -->
+        <div class="absolute w-[500px] h-[500px] bg-red-500 rounded-full blur-[100px] opacity-20 -top-40 -left-20 animate-pulse"></div>
+        <div class="absolute w-[400px] h-[400px] bg-orange-500 rounded-full blur-[120px] opacity-20 -bottom-20 -right-20"></div>
+
+        <div class="max-w-md w-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden p-10 relative z-10 border border-white/50">
+            <div class="text-center mb-10">
+                <div class="mp-logo-icon mx-auto mb-4 w-fit" style="padding: 10px 16px; border-radius: 16px;">
+                    <span class="mp-logo-m" style="font-size: 1.8rem;">M</span>
+                    <span class="mp-logo-amp" style="font-size: 1rem; color: #94a3b8;">&</span>
+                    <span class="mp-logo-p" style="font-size: 1.8rem;">P</span>
+                </div>
+                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight" style="font-family: 'Orbitron', monospace; letter-spacing: 2px;">M&P</h2>
+                <p class="text-xs text-orange-500 font-bold mt-1 tracking-[4px]" style="font-family: 'Orbitron', monospace;">PERFORMANCE</p>
+                <p class="text-sm text-slate-500 mt-3 font-medium">Acesso ao painel de controle</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1 ml-1">Usuário</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <input type="text" id="usuario" required class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white/50 transition duration-200" placeholder="admin">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1 ml-1">Senha</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <input type="password" id="password" required class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white/50 transition duration-200" placeholder="••••••••">
+                    </div>
+                </div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-xl shadow-lg shadow-red-600/30 text-sm font-bold text-white bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 transform hover:-translate-y-0.5">
+                    Acessar Painel
+                </button>
+            </form>
+            
+            <div class="mt-6 pt-6 border-t border-slate-200">
+                <p class="text-xs text-center text-slate-500">
+                    <strong>Credenciais padrão:</strong> admin / 1234
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SESSÃO ADMINISTRATIVA -->
+    <div id="adminSection" class="hidden h-screen flex bg-slate-50">
+        
+        <!-- Sidebar -->
+        <aside class="w-72 bg-white border-r border-slate-200 flex flex-col transition-all duration-300 hidden md:flex z-20 shadow-sm relative fixed inset-y-0 left-0">
+            <div class="h-20 flex items-center px-8 border-b border-slate-100 bg-gradient-to-r from-red-50 to-orange-50">
+                <div class="mp-logo-icon mr-3" style="padding: 6px 10px;">
+                    <span class="mp-logo-m" style="font-size: 1.1rem;">M</span>
+                    <span class="mp-logo-amp" style="font-size: 0.65rem;">&</span>
+                    <span class="mp-logo-p" style="font-size: 1.1rem;">P</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-black text-lg text-slate-800 leading-none" style="font-family: 'Orbitron', monospace; letter-spacing: 2px;">M&P</span>
+                    <span class="text-[0.55rem] font-bold text-orange-500 tracking-[3px] leading-none mt-0.5" style="font-family: 'Orbitron', monospace;">PERFORMANCE</span>
+                </div>
+            </div>
+            
+            <nav class="flex-1 px-4 py-8 space-y-2 overflow-y-auto">
+                <a href="#" class="flex items-center px-4 py-3 rounded-xl bg-red-50 text-red-700 font-semibold transition-colors">
+                    <i class="fas fa-users w-6 text-center mr-2"></i> Alunos
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-medium transition-colors cursor-not-allowed opacity-60">
+                    <i class="fas fa-calendar-alt w-6 text-center mr-2"></i> Agendamentos (Em breve)
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-medium transition-colors cursor-not-allowed opacity-60">
+                    <i class="fas fa-chart-bar w-6 text-center mr-2"></i> Relatórios (Em breve)
+                </a>
+            </nav>
+            
+            <div class="p-4 border-t border-slate-100">
+                <button id="btnLogout" class="w-full flex items-center justify-center px-4 py-3 rounded-xl text-slate-600 hover:bg-red-50 hover:text-red-600 font-bold transition-all duration-200 group">
+                    <i class="fas fa-sign-out-alt mr-2 group-hover:-translate-x-1 transition-transform"></i> Sair
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col h-screen overflow-hidden">
+            
+            <!-- Topbar -->
+            <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 sm:px-10 shrink-0 z-10 sticky top-0">
+                <div class="md:hidden flex items-center">
+                    <div class="mp-logo-icon mr-2" style="padding: 4px 8px; border-radius: 8px;">
+                        <span class="mp-logo-m" style="font-size: 0.9rem;">M</span>
+                        <span class="mp-logo-amp" style="font-size: 0.5rem;">&</span>
+                        <span class="mp-logo-p" style="font-size: 0.9rem;">P</span>
+                    </div>
+                    <span class="font-bold text-lg" style="font-family: 'Orbitron', monospace;">M&P</span>
+                </div>
+
+                <div class="hidden md:block">
+                    <h1 class="text-2xl font-bold text-slate-800">Gestão de Alunos</h1>
+                    <p class="text-sm text-slate-500 mt-1">Controle total sobre os alunos cadastrados. <span id="lastUpdate" class="text-xs text-red-600 font-medium"></span></p>
+                </div>
+                
+                <div class="flex items-center gap-5">
+                    <div class="flex items-center gap-3 pl-5 border-l border-slate-200">
+                        <div class="hidden sm:block text-right">
+                            <p class="text-sm font-bold text-slate-800 leading-none mb-1">Administrador</p>
+                            <p class="text-xs text-green-500 font-medium leading-none flex items-center justify-end"><span class="w-2 h-2 rounded-full bg-green-500 mr-1"></span> Online</p>
+                        </div>
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=dc2626&color=fff" alt="Admin" class="w-10 h-10 rounded-full shadow-sm border-2 border-white ring-2 ring-slate-100">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable Content -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50/50 p-6 sm:p-10">
+                
+                <!-- Cards de Resumo -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Total de Alunos -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center relative overflow-hidden group hover:shadow-md transition-shadow">
+                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-red-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="p-4 rounded-xl bg-red-100 text-red-600 mr-5 relative z-10">
+                            <i class="fas fa-users text-2xl"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <p class="text-sm text-slate-500 font-semibold mb-1 uppercase tracking-wider">Total</p>
+                            <p id="totalAlunos" class="text-3xl font-black text-slate-800">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Ativos -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center relative overflow-hidden group hover:shadow-md transition-shadow">
+                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-green-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="p-4 rounded-xl bg-green-100 text-green-600 mr-5 relative z-10">
+                            <i class="fas fa-check-circle text-2xl"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <p class="text-sm text-slate-500 font-semibold mb-1 uppercase tracking-wider">Ativos</p>
+                            <p id="totalAtivos" class="text-3xl font-black text-slate-800">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Inativos -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center relative overflow-hidden group hover:shadow-md transition-shadow">
+                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-yellow-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="p-4 rounded-xl bg-yellow-100 text-yellow-600 mr-5 relative z-10">
+                            <i class="fas fa-pause-circle text-2xl"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <p class="text-sm text-slate-500 font-semibold mb-1 uppercase tracking-wider">Inativos</p>
+                            <p id="totalInativos" class="text-3xl font-black text-slate-800">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela Section -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    
+                    <!-- Table Toolbar -->
+                    <div class="p-6 border-b border-slate-100 sm:flex sm:items-center sm:justify-between bg-white flex-wrap gap-4">
+                        <div class="relative max-w-sm w-full">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-slate-400"></i>
+                            </div>
+                            <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all shadow-sm" placeholder="Buscar por nome ou CPF...">
+                        </div>
+                        
+                        <div class="flex items-center gap-3 mt-4 sm:mt-0 w-full sm:w-auto">
+                            <button id="btnRefresh" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-100 border border-slate-300 text-slate-700 py-2.5 px-4 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-200 hover:text-slate-800 transition-colors">
+                                <i class="fas fa-sync-alt"></i> <span class="hidden sm:inline">Atualizar</span>
+                            </button>
+                            <button id="btnExportCSV" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-slate-300 text-slate-700 py-2.5 px-4 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 hover:text-red-600 transition-colors">
+                                <i class="fas fa-file-csv"></i> <span class="hidden sm:inline">Exportar</span>
+                            </button>
+                            <button id="btnNovoAluno" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-red-600 border border-transparent text-white py-2.5 px-5 rounded-xl text-sm font-bold shadow-md shadow-red-200 hover:bg-red-700 hover:shadow-lg transition-all hover:-translate-y-0.5">
+                                <i class="fas fa-plus"></i> Novo Aluno
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Table Wrapper -->
+                    <div class="overflow-x-auto relative min-h-[300px]">
+                        <!-- Tela de Carregamento -->
+                        <div id="tableLoader" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center hidden">
+                            <div class="flex flex-col items-center">
+                                <i class="fas fa-circle-notch fa-spin text-4xl text-red-600 mb-3"></i>
+                                <span class="text-sm font-semibold text-slate-500">Carregando dados...</span>
+                            </div>
+                        </div>
+
+                        <table class="min-w-full divide-y divide-slate-100">
+                            <thead class="bg-slate-50/80">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Nome</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">CPF</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaAlunos" class="bg-white divide-y divide-slate-50 relative">
+                                <!-- Os dados serão injetados aqui -->
+                            </tbody>
+                        </table>
+                        
+                        <!-- Empty State -->
+                        <div id="emptyState" class="hidden flex flex-col items-center justify-center py-16 text-center">
+                            <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-inbox text-3xl text-slate-400"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-800">Nenhum aluno encontrado</h3>
+                            <p class="text-sm text-slate-500 mt-1 max-w-sm">Comece cadastrando seus primeiros alunos na academia.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Table Footer -->
+                    <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between sm:px-6">
+                        <span class="text-sm text-slate-500 font-medium" id="totalRegistros">Mostrando todos os alunos</span>
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <footer class="mt-10 py-6 text-center text-sm font-medium text-slate-400 border-t border-slate-200">
+                    &copy; 2026 M&P Performance. Sistema de Gestão de Alunos.
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL CRIAR/EDITAR ALUNO -->
+    <div id="alunoModal" class="fixed inset-0 z-50 items-center justify-center hidden">
+        <!-- Backdrop -->
+        <div id="modalBackdrop" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden transform transition-all max-h-[90vh] overflow-y-auto">
+            
+            <div class="border-b border-slate-100 bg-gradient-to-r from-red-50 to-orange-50 px-6 py-5 flex items-center justify-between sticky top-0 z-20">
+                <h3 id="formTitle" class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-sm"><i class="fas fa-user-plus"></i></span>
+                    <span id="formTitleText">Novo Aluno</span>
+                </h3>
+                <button id="btnFecharModal" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <form id="alunoForm" class="space-y-5">
+                    <input type="hidden" id="alunoId">
+                    
+                    <div class="grid grid-cols-1 gap-5">
+                        <!-- Nome Completo -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Nome Completo *</label>
+                            <input type="text" id="nome" required class="block w-full border border-slate-300 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow bg-slate-50 focus:bg-white text-slate-800 placeholder-slate-400" placeholder="João Silva">
+                        </div>
+
+                        <!-- CPF -->
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">CPF *</label>
+                            <input type="text" id="cpf" required inputmode="numeric" maxlength="14" class="block w-full border border-slate-300 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow bg-slate-50 focus:bg-white text-slate-800 placeholder-slate-400" placeholder="123.456.789-00">
+                        </div>
+
+                        <!-- Status -->
+                        <div id="statusContainer">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Status *</label>
+                            <select id="status" class="block w-full border border-slate-300 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow bg-slate-50 focus:bg-white text-slate-800">
+                                <option value="">Selecione</option>
+                                <option value="Ativo">Ativo</option>
+                                <option value="Inativo">Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex flex-col gap-3 border-t border-slate-200 sm:flex-row">
+                        <button type="button" id="btnCancelarModal" class="flex-1 bg-white border border-slate-300 text-slate-700 py-3 px-4 rounded-xl shadow-sm text-sm font-bold hover:bg-slate-50 transition duration-200">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="flex-1 bg-red-600 text-white py-3 px-4 rounded-xl shadow-md shadow-red-200 text-sm font-bold hover:bg-red-700 transition duration-200 hover:-translate-y-0.5 transform">
+                            <i class="fas fa-save mr-2"></i> Salvar Aluno
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script principal -->
+    <script src="config.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
