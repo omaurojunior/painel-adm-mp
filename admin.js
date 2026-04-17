@@ -88,6 +88,7 @@ let loginAtivo = storage.getItem('loginAtivo') === 'true';
 let tokenAutenticacao = storage.getItem('tokenAutenticacao') || null;
 let alunos = [];
 let alunoAtual = null;
+let modoCriacaoNovo = true; // Flag para saber se é criação ou edição
 
 // ==========================================
 // ANIMAÇÃO DE SUCESSO
@@ -575,12 +576,19 @@ nomeInput.addEventListener('input', (e) => {
 
 // Validação de CPF em tempo real
 cpfInput.addEventListener('input', (e) => {
+    // Se é edição e CPF não foi modificado, não validar
+    if (!modoCriacaoNovo && e.target.value === (alunoAtual?.cpf || '')) {
+        cpfInput.classList.remove('border-red-400', 'border-green-400', 'bg-red-50');
+        cpfInput.classList.add('border-slate-300');
+        return;
+    }
+
     const cpf = e.target.value;
     if (cpf.replace(/\D/g, '').length < 11) {
-        cpfInput.classList.remove('border-green-400', 'border-yellow-400', 'border-slate-300');
+        cpfInput.classList.remove('border-green-400', 'border-yellow-400', 'border-slate-300', 'bg-red-50');
         cpfInput.classList.add('border-slate-300');
     } else if (cpf && !validarCPF(cpf)) {
-        cpfInput.classList.remove('border-green-400', 'border-slate-300');
+        cpfInput.classList.remove('border-green-400', 'border-slate-300', 'bg-red-50');
         cpfInput.classList.add('border-red-400', 'bg-red-50');
     } else if (cpf && validarCPF(cpf)) {
         cpfInput.classList.remove('border-red-400', 'border-slate-300', 'bg-red-50');
@@ -646,7 +654,16 @@ btnExportCSV.addEventListener('click', () => {
 // 12. MODAL - ABRIR/FECHAR
 // ==========================================
 function abrirModal(titulo = 'Novo Aluno', editar = false) {
+    modoCriacaoNovo = !editar; // Define se é criação ou edição
+    
     formTitleText.textContent = titulo;
+    
+    // Limpar estilos de validação
+    nomeInput.classList.remove('border-yellow-400', 'border-green-400', 'border-red-400', 'bg-yellow-50', 'bg-green-50', 'bg-red-50');
+    cpfInput.classList.remove('border-yellow-400', 'border-green-400', 'border-red-400', 'bg-yellow-50', 'bg-green-50', 'bg-red-50');
+    nomeInput.classList.add('border-slate-300');
+    cpfInput.classList.add('border-slate-300');
+    
     if (!editar) {
         alunoForm.reset();
         // Para novo aluno, definir status como Ativo e ocultar campo
@@ -681,6 +698,7 @@ function fecharModal() {
         alunoModal.classList.add('hidden');
         alunoModal.classList.remove('hide');
         alunoAtual = null;
+        modoCriacaoNovo = true;
     }, 300);
 }
 
@@ -819,15 +837,22 @@ alunoForm.addEventListener('submit', async (e) => {
         return;
     }
 
-    if (!cpf || !validarCPF(cpf) || cpf.length !== 11) {
-        Toast.fire({
-            icon: 'warning',
-            title: 'CPF inválido',
-            text: 'Digite um CPF válido (11 dígitos)'
-        });
-        cpfInput.focus();
-        cpfInput.classList.add('border-red-400', 'bg-red-50');
-        return;
+    // Validação de CPF - Permitir CPF original em edição sem revalidar
+    const cpfOriginal = alunoAtual?.cpf?.replace(/\D/g, '') || '';
+    const cpfMudou = id && cpf !== cpfOriginal;
+    
+    // Validar CPF apenas se: é criação OU é edição e mudou o CPF
+    if (!id || cpfMudou) {
+        if (!cpf || !validarCPF(cpf) || cpf.length !== 11) {
+            Toast.fire({
+                icon: 'warning',
+                title: 'CPF inválido',
+                text: 'Digite um CPF válido (11 dígitos)'
+            });
+            cpfInput.focus();
+            cpfInput.classList.add('border-red-400', 'bg-red-50');
+            return;
+        }
     }
 
     const cpfNumerico = cpf.replace(/\D/g, '');
