@@ -133,6 +133,7 @@ loginForm.addEventListener('submit', async (e) => {
             tokenAutenticacao = dados.token;
             storage.setItem('tokenAutenticacao', tokenAutenticacao);
             storage.setItem('loginAtivo', 'true');
+            storage.setItem('usuarioLogado', usuario);
             loginAtivo = true;
             
             logDebug('Login Sucesso', `Token salvo: ${tokenAutenticacao.substring(0, 20)}...`);
@@ -143,7 +144,7 @@ loginForm.addEventListener('submit', async (e) => {
             
             Toast.fire({
                 icon: 'success',
-                title: `Bem-vindo, ${dados.usuario}!`,
+                title: `Bem-vindo, ${usuario.charAt(0).toUpperCase() + usuario.slice(1)}!`,
                 text: 'Conectado à API com sucesso'
             });
         } else {
