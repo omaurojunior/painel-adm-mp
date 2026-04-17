@@ -11,7 +11,7 @@
 
 const CONFIG = {
   // 🌐 URL BASE DA API (ALTERE CONFORME NECESSÁRIO)
-  API_BASE_URL: 'https://api-catraca-mu.ver',
+  API_BASE_URL: 'https://api-catraca-mu.vercel.app',
   // 'http://localhost:3000'          // Desenvolvimento local
   // 'http://192.168.x.x:3000'        // IP da máquina do backend
   // 'https://api.mpperformance.com'  // Produção
