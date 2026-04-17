@@ -26,16 +26,22 @@ function logDebug(titulo, dados) {
   }
 }
 
-// Toast Config (SweetAlert2)
+// Toast Config (SweetAlert2) - Melhorado
 const Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
     showConfirmButton: false,
-    timer: 3000,
+    timer: 3500,
     timerProgressBar: true,
     didOpen: (toast) => {
         toast.addEventListener('mouseenter', Swal.stopTimer)
         toast.addEventListener('mouseleave', Swal.resumeTimer)
+    },
+    customClass: {
+        container: 'toast-custom',
+        popup: 'rounded-2xl shadow-2xl border border-white/20 backdrop-blur-xl',
+        title: 'text-sm font-bold',
+        timerProgressBar: 'bg-gradient-to-r from-red-600 to-orange-600'
     }
 });
 
@@ -84,8 +90,20 @@ let alunos = [];
 let alunoAtual = null;
 
 // ==========================================
-// INICIALIZAÇÃO
+// ANIMAÇÃO DE SUCESSO
 // ==========================================
+function showSuccessAnimation() {
+    const successEl = document.createElement('div');
+    successEl.innerHTML = `
+        <div class="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+            <div class="text-6xl animate-bounce">
+                <i class="fas fa-check-circle text-green-500" style="filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.5));"></i>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(successEl);
+    setTimeout(() => successEl.remove(), 1500);
+}
 function iniciarApp() {
     if (loginAtivo) {
         mostrarPainelAdmin();
@@ -141,6 +159,8 @@ loginForm.addEventListener('submit', async (e) => {
             loginForm.reset();
             mostrarPainelAdmin();
             carregarAlunos();
+            
+            showSuccessAnimation();
             
             Toast.fire({
                 icon: 'success',
@@ -389,12 +409,15 @@ function renderizarTabela(alunosParaMostrar) {
                            aluno.status === 'Suspenso' ? 'bg-yellow-100 text-yellow-700' :
                            'bg-red-100 text-red-700';
         
+        const statusIcon = aluno.status === 'Ativo' ? '✓' : 
+                          aluno.status === 'Suspenso' ? '⚠' : '✗';
+        
         row.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-red-100">
-                            <span class="text-red-600 font-bold text-sm">${aluno.nome.charAt(0).toUpperCase()}</span>
+                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-red-100 font-bold text-red-600 text-sm">
+                            ${aluno.nome.charAt(0).toUpperCase()}
                         </div>
                     </div>
                     <div class="ml-4">
@@ -404,16 +427,18 @@ function renderizarTabela(alunosParaMostrar) {
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-mono">${aluno.cpf || '—'}</td>
             <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                    ${aluno.status}
+                <span class="status-badge px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                    ${statusIcon} ${aluno.status}
                 </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                <button type="button" data-action="editar" data-id="${aluno.id}" class="text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 px-3 py-1 rounded-lg transition-colors" title="Editar aluno">
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2 flex items-center justify-end gap-1">
+                <button type="button" data-action="editar" data-id="${aluno.id}" class="tooltip text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-all active:scale-90 transform" title="Editar aluno">
                     <i class="fas fa-edit"></i>
+                    <span class="tooltiptext">Editar</span>
                 </button>
-                <button type="button" data-action="deletar" data-id="${aluno.id}" class="text-red-600 hover:text-red-900 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors" title="Deletar aluno">
+                <button type="button" data-action="deletar" data-id="${aluno.id}" class="tooltip text-red-600 hover:text-red-900 hover:bg-red-50 px-3 py-2 rounded-lg transition-all active:scale-90 transform" title="Deletar aluno">
                     <i class="fas fa-trash"></i>
+                    <span class="tooltiptext">Deletar</span>
                 </button>
             </td>
         `;
@@ -435,9 +460,18 @@ function atualizarCards() {
 }
 
 // ==========================================
-// 7. BUSCA EM TEMPO REAL
+// 7. BUSCA EM TEMPO REAL COM DEBOUNCE
 // ==========================================
-searchInput.addEventListener('input', atualizarTabela);
+function debounce(func, delay) {
+    let timeoutId;
+    return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+}
+
+const buscarComDebounce = debounce(atualizarTabela, 300);
+searchInput.addEventListener('input', buscarComDebounce);
 
 // ==========================================
 // 7. EVENTOS DE TABELA
@@ -464,19 +498,98 @@ tabelaAlunos.addEventListener('click', (event) => {
 btnRefresh.addEventListener('click', async () => {
     btnRefresh.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> <span class="hidden sm:inline">Atualizando...</span>';
     btnRefresh.disabled = true;
+    btnRefresh.classList.add('opacity-75');
+    
+    // Adicionar efeito de shimmer
+    const tabelaAlunos_el = document.getElementById('tabelaAlunos');
+    tabelaAlunos_el.style.opacity = '0.5';
     
     await carregarAlunos();
     
-    btnRefresh.innerHTML = '<i class="fas fa-sync-alt"></i> <span class="hidden sm:inline">Atualizar</span>';
-    btnRefresh.disabled = false;
-    Toast.fire({
-        icon: 'success',
-        title: 'Dados sincronizados com a API!'
-    });
+    setTimeout(() => {
+        tabelaAlunos_el.style.opacity = '1';
+        btnRefresh.innerHTML = '<i class="fas fa-sync-alt"></i> <span class="hidden sm:inline">Atualizar</span>';
+        btnRefresh.disabled = false;
+        btnRefresh.classList.remove('opacity-75');
+        
+        Toast.fire({
+            icon: 'success',
+            title: 'Dados sincronizados com a API!'
+        });
+    }, 300);
 });
 
 // ==========================================
-// 9. FORMATAÇÃO DE INPUTS
+// 9. VALIDAÇÃO EM TEMPO REAL
+// ==========================================
+function validarCPF(cpf) {
+    const cpfLimpo = cpf.replace(/\D/g, '');
+    
+    if (cpfLimpo.length !== 11) return false;
+    
+    // Rejeitar CPF com todos os dígitos iguais
+    if (/^(\d)\1{10}$/.test(cpfLimpo)) return false;
+    
+    // Validação com algoritmo mod-11
+    let sum = 0;
+    let remainder;
+    
+    // Primeiro dígito verificador
+    for (let i = 1; i <= 9; i++) {
+        sum += parseInt(cpfLimpo.substring(i - 1, i)) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpfLimpo.substring(9, 10))) return false;
+    
+    // Segundo dígito verificador
+    sum = 0;
+    for (let i = 1; i <= 10; i++) {
+        sum += parseInt(cpfLimpo.substring(i - 1, i)) * (12 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpfLimpo.substring(10, 11))) return false;
+    
+    return true;
+}
+
+function validarNome(nome) {
+    return nome.trim().length >= 3;
+}
+
+// Validação de nome em tempo real
+nomeInput.addEventListener('input', (e) => {
+    const nome = e.target.value;
+    if (nome && !validarNome(nome)) {
+        nomeInput.classList.remove('border-green-400', 'border-slate-300');
+        nomeInput.classList.add('border-yellow-400', 'bg-yellow-50');
+    } else if (nome && validarNome(nome)) {
+        nomeInput.classList.remove('border-yellow-400', 'border-slate-300', 'bg-yellow-50');
+        nomeInput.classList.add('border-green-400', 'bg-green-50');
+    } else {
+        nomeInput.classList.remove('border-yellow-400', 'border-green-400', 'bg-yellow-50', 'bg-green-50');
+        nomeInput.classList.add('border-slate-300');
+    }
+});
+
+// Validação de CPF em tempo real
+cpfInput.addEventListener('input', (e) => {
+    const cpf = e.target.value;
+    if (cpf.replace(/\D/g, '').length < 11) {
+        cpfInput.classList.remove('border-green-400', 'border-yellow-400', 'border-slate-300');
+        cpfInput.classList.add('border-slate-300');
+    } else if (cpf && !validarCPF(cpf)) {
+        cpfInput.classList.remove('border-green-400', 'border-slate-300');
+        cpfInput.classList.add('border-red-400', 'bg-red-50');
+    } else if (cpf && validarCPF(cpf)) {
+        cpfInput.classList.remove('border-red-400', 'border-slate-300', 'bg-red-50');
+        cpfInput.classList.add('border-green-400', 'bg-green-50');
+    }
+});
+
+// ==========================================
+// 10. FORMATAÇÃO DE INPUTS
 // ==========================================
 function formatarCPF(value) {
     return value
@@ -494,7 +607,7 @@ if (cpfInput) {
 }
 
 // ==========================================
-// 10. EXPORTAR CSV
+// 11. EXPORTAR CSV
 // ==========================================
 btnExportCSV.addEventListener('click', () => {
     if (alunos.length === 0) {
@@ -530,7 +643,7 @@ btnExportCSV.addEventListener('click', () => {
 });
 
 // ==========================================
-// 10. MODAL - ABRIR/FECHAR
+// 12. MODAL - ABRIR/FECHAR
 // ==========================================
 function abrirModal(titulo = 'Novo Aluno', editar = false) {
     formTitleText.textContent = titulo;
@@ -548,6 +661,17 @@ function abrirModal(titulo = 'Novo Aluno', editar = false) {
     alunoForm.classList.remove('hidden');
     alunoModal.classList.remove('hide');
     alunoModal.classList.add('show');
+    
+    // Animar inputs
+    setTimeout(() => {
+        const inputs = alunoForm.querySelectorAll('input, select');
+        inputs.forEach((input, index) => {
+            input.style.animation = 'none';
+            setTimeout(() => {
+                input.style.animation = `fadeInRow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${index * 100}ms forwards`;
+            }, 10);
+        });
+    }, 100);
 }
 
 function fecharModal() {
@@ -557,7 +681,7 @@ function fecharModal() {
         alunoModal.classList.add('hidden');
         alunoModal.classList.remove('hide');
         alunoAtual = null;
-    }, 200);
+    }, 300);
 }
 
 btnNovoAluno.addEventListener('click', () => {
@@ -571,7 +695,7 @@ btnCancelarModal.addEventListener('click', fecharModal);
 modalBackdrop.addEventListener('click', fecharModal);
 
 // ==========================================
-// 11. EDITAR ALUNO
+// 13. EDITAR ALUNO
 // ==========================================
 function editarAluno(id) {
     const alunoId = Number(id);
@@ -592,7 +716,7 @@ function editarAluno(id) {
 }
 
 // ==========================================
-// 12. DELETAR ALUNO NA API
+// 14. DELETAR ALUNO NA API
 // ==========================================
 function deletarAluno(id) {
     const aluno = alunos.find(a => Number(a.id) === Number(id));
@@ -632,6 +756,7 @@ function deletarAluno(id) {
                     // Bloquear entrada no sistema de autenticação
                     // await sincronizarComSistemaDeEntrada(alunoId, 'Deletado');
                     
+                    showSuccessAnimation();
                     alunos = alunos.filter(a => Number(a.id) !== alunoId);
                     carregarAlunos();
                     
@@ -672,7 +797,7 @@ function deletarAluno(id) {
 }
 
 // ==========================================
-// 13. SALVAR ALUNO (CRIAR/EDITAR)
+// 15. SALVAR ALUNO (CRIAR/EDITAR)
 // ==========================================
 alunoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -683,19 +808,25 @@ alunoForm.addEventListener('submit', async (e) => {
     const status = statusInput.value;
 
     // Validação
-    if (!nome || !cpf) {
+    if (!nome || !validarNome(nome)) {
         Toast.fire({
             icon: 'warning',
-            title: 'Preencha todos os campos obrigatórios!'
+            title: 'Nome inválido',
+            text: 'Nome deve ter pelo menos 3 caracteres'
         });
+        nomeInput.focus();
+        nomeInput.classList.add('border-red-400', 'bg-red-50');
         return;
     }
 
-    if (cpf.length !== 11) {
+    if (!cpf || !validarCPF(cpf) || cpf.length !== 11) {
         Toast.fire({
             icon: 'warning',
-            title: 'CPF deve ter 11 dígitos!'
+            title: 'CPF inválido',
+            text: 'Digite um CPF válido (11 dígitos)'
         });
+        cpfInput.focus();
+        cpfInput.classList.add('border-red-400', 'bg-red-50');
         return;
     }
 
@@ -730,6 +861,7 @@ alunoForm.addEventListener('submit', async (e) => {
     const textoBotao = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Salvando...';
     submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-75');
 
     const dadosAluno = {
         nome,
@@ -775,6 +907,8 @@ alunoForm.addEventListener('submit', async (e) => {
         if (resposta.ok) {
             const novoAluno = await resposta.json();
             logDebug('Salvar Sucesso', `Aluno: ${nome}`);
+            
+            showSuccessAnimation();
             
             // ✅ SINCRONIZAR COM SISTEMA DE ENTRADA
             // await sincronizarComSistemaDeEntrada(novoAluno.id || id, status);
@@ -855,6 +989,7 @@ alunoForm.addEventListener('submit', async (e) => {
     } finally {
         submitBtn.innerHTML = textoBotao;
         submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-75');
     }
 });
 

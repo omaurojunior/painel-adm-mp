@@ -28,65 +28,453 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* Modal Transition */
-        #alunoModal.show { display: flex; animation: fadeIn 0.2s ease-out forwards; }
-        #alunoModal.hide { animation: fadeOut 0.2s ease-in forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95); } }
-        
-        /* Table Row Animation */
-        .animate-fade-in {
-            animation: fadeInRow 0.3s ease-out forwards;
-        }
-        @keyframes fadeInRow {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Smooth Transitions Globais */
+        * {
+            transition-property: background-color, border-color, color, fill, stroke, box-shadow, transform;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 200ms;
         }
 
-        /* M&P Logo Branding */
+        /* Custom Scrollbar Moderno */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, #dc2626, #ff6b35);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #b91c1c, #ea580c); background-clip: content-box; }
+        
+        /* Background Animado */
+        body {
+            background: linear-gradient(-45deg, #f8fafc, #fef2f2, #fff7ed, #f0fdf4);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Login Section - Glassmorphism */
+        #loginSection {
+            background: radial-gradient(circle at 20% 50%, rgba(220, 38, 38, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%);
+        }
+
+        /* Modal Animação Moderna */
+        #alunoModal.show { 
+            display: flex; 
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; 
+        }
+        #alunoModal.hide { 
+            animation: modalSlideOut 0.3s ease-in forwards; 
+        }
+        @keyframes modalSlideIn { 
+            from { 
+                opacity: 0; 
+                transform: translateY(60px) scale(0.92) rotateX(10deg); 
+                filter: blur(20px);
+            } 
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1) rotateX(0deg); 
+                filter: blur(0);
+            } 
+        }
+        @keyframes modalSlideOut { 
+            from { 
+                opacity: 1; 
+                transform: translateY(0) scale(1) rotateX(0deg); 
+                filter: blur(0);
+            } 
+            to { 
+                opacity: 0; 
+                transform: translateY(60px) scale(0.92) rotateX(10deg); 
+                filter: blur(20px);
+            } 
+        }
+
+        /* Linha de Entrada do Modal */
+        .modal-header-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #dc2626, #ff6b35);
+            animation: slideLineIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes slideLineIn {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        /* Tabela Row Animation */
+        .animate-fade-in {
+            animation: fadeInRow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes fadeInRow {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) translateX(-20px) rotateY(-10deg); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) translateX(0) rotateY(0deg); 
+            }
+        }
+
+        /* Botão com Ripple Effect Melhorado */
+        button {
+            position: relative;
+            overflow: hidden;
+        }
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+        button:active::before {
+            animation: rippleExpand 0.7s ease-out;
+        }
+        @keyframes rippleExpand {
+            to { 
+                width: 400px; 
+                height: 400px; 
+                opacity: 0; 
+            }
+        }
+
+        /* Input Focus Effects - Moderno */
+        input, select, textarea {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #cbd5e1;
+        }
+        input:focus, select:focus, textarea:focus {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(220, 38, 38, 0.15),
+                        0 0 0 3px rgba(220, 38, 38, 0.1);
+            background-color: white;
+        }
+
+        /* Row Hover Effect com Profundidade */
+        tbody tr {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+        tbody tr::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 0;
+        }
+        tbody tr:hover {
+            background-color: #fef2f2;
+            transform: scale(1.01) translateZ(10px);
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.12);
+        }
+        tbody tr:hover::before {
+            opacity: 1;
+        }
+
+        /* Status Badge Animation - Pop */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .status-badge::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
+            opacity: 0;
+        }
+        .status-badge:hover::before {
+            animation: shimmer 0.6s ease-in-out;
+        }
+        @keyframes popIn {
+            from { 
+                opacity: 0; 
+                transform: scale(0.6) rotate(-10deg); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) rotate(0deg); 
+            }
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Card Gradient Background */
+        .card-gradient {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 250, 250, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* Tooltip Moderno */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: #fff;
+            text-align: center;
+            border-radius: 12px;
+            padding: 10px 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 130%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 12px;
+            white-space: normal;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .tooltip .tooltiptext::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px 6px 0;
+            border-style: solid;
+            border-color: #111827 transparent transparent transparent;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+
+        /* Spinner melhorado */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .fa-spin {
+            animation: spin 1.2s linear infinite;
+        }
+
+        /* M&P Logo Branding - Moderno */
         .mp-logo {
             display: flex;
             align-items: center;
             gap: 3px;
             font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #6b8aad 0%, #ff6b35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .mp-logo-m {
             font-weight: 900;
-            color: #6b8aad;
-            text-shadow: 0 0 10px rgba(107, 138, 173, 0.3);
-        }
-        .mp-logo-amp {
-            font-weight: 700;
-            color: #94a3b8;
-            font-size: 0.7em;
+            animation: float 3s ease-in-out infinite;
         }
         .mp-logo-p {
             font-weight: 900;
-            color: #ff6b35;
-            text-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+            animation: float 3s ease-in-out infinite 0.5s;
         }
-        .mp-logo-icon {
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Button Group Effects */
+        .btn-group {
             display: flex;
+            gap: 12px;
             align-items: center;
-            gap: 1px;
-            background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5));
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: 12px;
-            padding: 6px 10px;
-            position: relative;
-            overflow: hidden;
         }
-        .mp-logo-icon::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(107,138,173,0.08), transparent 50%, rgba(255,107,53,0.08));
+        .btn-group button {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .btn-group button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(220, 38, 38, 0.25);
+        }
+        .btn-group button:active {
+            transform: translateY(-1px);
+        }
+
+        /* Skeleton Loader */
+        @keyframes shimmerLoad {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 1000px 100%;
+            animation: shimmerLoad 2s infinite;
+            border-radius: 8px;
+        }
+
+        /* Card Hover Lift */
+        .card-lift {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .card-lift:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(220, 38, 38, 0.15);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #dc2626 0%, #ff6b35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        /* Page Transition */
+        @keyframes pageIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        main {
+            animation: pageIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Loading Bar */
+        .loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #dc2626, #ff6b35, #dc2626);
+            background-size: 200% 100%;
+            animation: loadingBar 1.5s ease-in-out infinite;
+            z-index: 999;
+        }
+        @keyframes loadingBar {
+            0% { transform: scaleX(0); }
+            50% { transform: scaleX(1); }
+            100% { transform: scaleX(0); }
+        }
+
+        /* Badge Pulse */
+        .badge-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Success Animation */
+        @keyframes successBounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Smooth page transitions */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* SweetAlert2 Custom Styling */
+        .swal2-popup {
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 250, 250, 0.9) 100%) !important;
+            backdrop-filter: blur(10px);
+            animation: popUpIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes popUpIn {
+            from { opacity: 0; transform: scale(0.8) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .swal2-title {
+            font-size: 1.5rem;
+            color: #1f2937;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+        }
+        .swal2-html-container {
+            color: #6b7280;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .swal2-confirm {
+            background: linear-gradient(135deg, #dc2626 0%, #ff6b35 100%) !important;
+            border: none !important;
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3) !important;
+            border-radius: 12px !important;
+            font-weight: 600;
+            padding: 10px 30px !important;
+            transition: all 0.3s ease;
+        }
+        .swal2-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(220, 38, 38, 0.4) !important;
+        }
+        .swal2-cancel {
+            background: #f3f4f6 !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 12px !important;
+            color: #6b7280 !important;
+            font-weight: 600;
+        }
+        .swal2-cancel:hover {
+            background: #e5e7eb !important;
+        }
+        .toast-custom {
+            pointer-events: auto;
+        }
+
+        /* Animação de entrada do topbar */
+        @keyframes slideDownIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(-20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        .animation-slide-down {
+            animation: slideDownIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
     </style>
 </head>
@@ -138,7 +526,7 @@
     </div>
 
     <!-- SESSÃO ADMINISTRATIVA -->
-    <div id="adminSection" class="hidden h-screen flex bg-slate-50">
+    <div id="adminSection" class="hidden h-screen flex bg-gradient-to-br from-slate-50 via-red-50/30 to-orange-50/20">
         
         <!-- Sidebar -->
         <aside class="w-72 bg-white border-r border-slate-200 flex flex-col transition-all duration-300 hidden md:flex z-20 shadow-sm relative fixed inset-y-0 left-0">
@@ -177,7 +565,7 @@
         <div class="flex-1 flex flex-col h-screen overflow-hidden">
             
             <!-- Topbar -->
-            <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 sm:px-10 shrink-0 z-10 sticky top-0">
+            <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 sm:px-10 shrink-0 z-10 sticky top-0 shadow-sm animation-slide-down">
                 <div class="md:hidden flex items-center">
                     <div class="mp-logo-icon mr-2" style="padding: 4px 8px; border-radius: 8px;">
                         <span class="mp-logo-m" style="font-size: 0.9rem;">M</span>
@@ -209,74 +597,86 @@
                 <!-- Cards de Resumo -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <!-- Total de Alunos -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center relative overflow-hidden group hover:shadow-md transition-shadow">
-                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-red-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-                        <div class="p-4 rounded-xl bg-red-100 text-red-600 mr-5 relative z-10">
+                    <div class="card-lift bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center relative overflow-hidden group hover:shadow-lg transition-all">
+                        <div class="absolute -right-8 -top-8 w-32 h-32 bg-gradient-to-br from-red-50 to-red-100 rounded-full opacity-40 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="absolute -bottom-4 -left-4 w-24 h-24 bg-gradient-to-tr from-red-100 to-transparent rounded-full opacity-20"></div>
+                        <div class="p-4 rounded-xl bg-gradient-to-br from-red-100 to-red-50 text-red-600 mr-5 relative z-10 shadow-md">
                             <i class="fas fa-users text-2xl"></i>
                         </div>
                         <div class="relative z-10">
-                            <p class="text-sm text-slate-500 font-semibold mb-1 uppercase tracking-wider">Total</p>
-                            <p id="totalAlunos" class="text-3xl font-black text-slate-800">0</p>
+                            <p class="text-xs text-slate-500 font-bold mb-1 uppercase tracking-widest">Total de Alunos</p>
+                            <p id="totalAlunos" class="text-4xl font-black text-slate-800">0</p>
                         </div>
                     </div>
 
                     <!-- Ativos -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center relative overflow-hidden group hover:shadow-md transition-shadow">
-                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-green-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-                        <div class="p-4 rounded-xl bg-green-100 text-green-600 mr-5 relative z-10">
+                    <div class="card-lift bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center relative overflow-hidden group hover:shadow-lg transition-all">
+                        <div class="absolute -right-8 -top-8 w-32 h-32 bg-gradient-to-br from-green-50 to-green-100 rounded-full opacity-40 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="absolute -bottom-4 -left-4 w-24 h-24 bg-gradient-to-tr from-green-100 to-transparent rounded-full opacity-20"></div>
+                        <div class="p-4 rounded-xl bg-gradient-to-br from-green-100 to-green-50 text-green-600 mr-5 relative z-10 shadow-md">
                             <i class="fas fa-check-circle text-2xl"></i>
                         </div>
                         <div class="relative z-10">
-                            <p class="text-sm text-slate-500 font-semibold mb-1 uppercase tracking-wider">Ativos</p>
-                            <p id="totalAtivos" class="text-3xl font-black text-slate-800">0</p>
+                            <p class="text-xs text-slate-500 font-bold mb-1 uppercase tracking-widest">Alunos Ativos</p>
+                            <p id="totalAtivos" class="text-4xl font-black text-slate-800">0</p>
                         </div>
                     </div>
 
                     <!-- Inativos -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center relative overflow-hidden group hover:shadow-md transition-shadow">
-                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-yellow-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-                        <div class="p-4 rounded-xl bg-yellow-100 text-yellow-600 mr-5 relative z-10">
+                    <div class="card-lift bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center relative overflow-hidden group hover:shadow-lg transition-all">
+                        <div class="absolute -right-8 -top-8 w-32 h-32 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-full opacity-40 group-hover:scale-150 transition-transform duration-500"></div>
+                        <div class="absolute -bottom-4 -left-4 w-24 h-24 bg-gradient-to-tr from-yellow-100 to-transparent rounded-full opacity-20"></div>
+                        <div class="p-4 rounded-xl bg-gradient-to-br from-yellow-100 to-yellow-50 text-yellow-600 mr-5 relative z-10 shadow-md">
                             <i class="fas fa-pause-circle text-2xl"></i>
                         </div>
                         <div class="relative z-10">
-                            <p class="text-sm text-slate-500 font-semibold mb-1 uppercase tracking-wider">Inativos</p>
-                            <p id="totalInativos" class="text-3xl font-black text-slate-800">0</p>
+                            <p class="text-xs text-slate-500 font-bold mb-1 uppercase tracking-widest">Alunos Inativos</p>
+                            <p id="totalInativos" class="text-4xl font-black text-slate-800">0</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tabela Section -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col backdrop-blur-sm bg-white/95">
                     
                     <!-- Table Toolbar -->
-                    <div class="p-6 border-b border-slate-100 sm:flex sm:items-center sm:justify-between bg-white flex-wrap gap-4">
+                    <div class="p-6 border-b border-slate-100 sm:flex sm:items-center sm:justify-between bg-gradient-to-r from-white to-red-50/50 flex-wrap gap-4">
                         <div class="relative max-w-sm w-full">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-slate-400"></i>
                             </div>
-                            <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all shadow-sm" placeholder="Buscar por nome ou CPF...">
+                            <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all shadow-sm" placeholder="Buscar por nome ou CPF..." autocomplete="off">
                         </div>
                         
-                        <div class="flex items-center gap-3 mt-4 sm:mt-0 w-full sm:w-auto">
-                            <button id="btnRefresh" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-100 border border-slate-300 text-slate-700 py-2.5 px-4 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-200 hover:text-slate-800 transition-colors">
+                        <div class="flex items-center gap-3 mt-4 sm:mt-0 w-full sm:w-auto btn-group">
+                            <button id="btnRefresh" class="tooltip flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-100 border border-slate-300 text-slate-700 py-2.5 px-4 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-200 hover:text-slate-800 active:scale-95 transition-all duration-200 transform" title="Atualizar dados da API">
                                 <i class="fas fa-sync-alt"></i> <span class="hidden sm:inline">Atualizar</span>
+                                <span class="tooltiptext">Sincronizar com API</span>
                             </button>
-                            <button id="btnExportCSV" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-slate-300 text-slate-700 py-2.5 px-4 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 hover:text-red-600 transition-colors">
+                            <button id="btnExportCSV" class="tooltip flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-slate-300 text-slate-700 py-2.5 px-4 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 hover:text-red-600 active:scale-95 transition-all duration-200 transform" title="Exportar para CSV">
                                 <i class="fas fa-file-csv"></i> <span class="hidden sm:inline">Exportar</span>
+                                <span class="tooltiptext">Exportar como CSV</span>
                             </button>
-                            <button id="btnNovoAluno" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-red-600 border border-transparent text-white py-2.5 px-5 rounded-xl text-sm font-bold shadow-md shadow-red-200 hover:bg-red-700 hover:shadow-lg transition-all hover:-translate-y-0.5">
+                            <button id="btnNovoAluno" class="tooltip flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-orange-600 border border-transparent text-white py-2.5 px-5 rounded-xl text-sm font-bold shadow-md shadow-red-200 hover:from-red-700 hover:to-orange-700 hover:shadow-lg active:scale-95 transition-all duration-200 transform" title="Cadastrar novo aluno">
                                 <i class="fas fa-plus"></i> Novo Aluno
+                                <span class="tooltiptext">Cadastrar novo aluno</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- Table Wrapper -->
                     <div class="overflow-x-auto relative min-h-[300px]">
-                        <!-- Tela de Carregamento -->
-                        <div id="tableLoader" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center hidden">
-                            <div class="flex flex-col items-center">
-                                <i class="fas fa-circle-notch fa-spin text-4xl text-red-600 mb-3"></i>
-                                <span class="text-sm font-semibold text-slate-500">Carregando dados...</span>
+                        <!-- Tela de Carregamento Moderna -->
+                        <div id="tableLoader" class="absolute inset-0 bg-gradient-to-b from-white/80 to-white/60 backdrop-blur-sm z-10 flex items-center justify-center hidden">
+                            <div class="flex flex-col items-center gap-4">
+                                <div class="relative w-16 h-16">
+                                    <div class="absolute inset-0 rounded-full border-4 border-slate-200"></div>
+                                    <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-red-600 border-r-orange-600 animate-spin"></div>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-sm font-bold gradient-text">Carregando dados...</span>
+                                    <p class="text-xs text-slate-500 mt-1">Aguarde um momento</p>
+                                </div>
                             </div>
                         </div>
 
@@ -321,56 +721,63 @@
 
     <!-- MODAL CRIAR/EDITAR ALUNO -->
     <div id="alunoModal" class="fixed inset-0 z-50 items-center justify-center hidden">
-        <!-- Backdrop -->
-        <div id="modalBackdrop" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"></div>
+        <!-- Backdrop com Blur -->
+        <div id="modalBackdrop" class="absolute inset-0 bg-gradient-to-br from-slate-900/40 via-slate-900/30 to-slate-900/40 backdrop-blur-md transition-opacity"></div>
         
-        <!-- Modal Content -->
-        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden transform transition-all max-h-[90vh] overflow-y-auto">
+        <!-- Modal Content - Glassmorphism -->
+        <div class="relative bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden transform transition-all max-h-[90vh] overflow-y-auto border border-white/20">
+            <div class="modal-header-line"></div>
             
-            <div class="border-b border-slate-100 bg-gradient-to-r from-red-50 to-orange-50 px-6 py-5 flex items-center justify-between sticky top-0 z-20">
-                <h3 id="formTitle" class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-sm"><i class="fas fa-user-plus"></i></span>
+            <div class="border-b border-slate-100 bg-gradient-to-r from-red-50/50 to-orange-50/50 px-6 py-6 flex items-center justify-between sticky top-0 z-20 backdrop-blur-sm">
+                <h3 id="formTitle" class="text-2xl font-bold gradient-text flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-full bg-gradient-to-br from-red-100 to-orange-100 text-red-600 flex items-center justify-center text-lg shadow-md"><i class="fas fa-user-plus"></i></span>
                     <span id="formTitleText">Novo Aluno</span>
                 </h3>
-                <button id="btnFecharModal" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
-                    <i class="fas fa-times"></i>
+                <button id="btnFecharModal" class="text-slate-400 hover:text-red-600 hover:bg-red-50 w-10 h-10 rounded-full flex items-center justify-center transition-all transform hover:scale-110 active:scale-95">
+                    <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
             
-            <div class="p-6">
-                <form id="alunoForm" class="space-y-5">
+            <div class="p-8">
+                <form id="alunoForm" class="space-y-6">
                     <input type="hidden" id="alunoId">
                     
-                    <div class="grid grid-cols-1 gap-5">
+                    <div class="grid grid-cols-1 gap-6">
                         <!-- Nome Completo -->
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Nome Completo *</label>
-                            <input type="text" id="nome" required class="block w-full border border-slate-300 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow bg-slate-50 focus:bg-white text-slate-800 placeholder-slate-400" placeholder="João Silva">
+                        <div class="transform transition-all duration-300">
+                            <label class="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                                <i class="fas fa-user text-red-600 text-lg"></i> Nome Completo <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="nome" required class="block w-full border-2 border-slate-300 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:shadow-lg transition-all bg-slate-50 focus:bg-white text-slate-800 placeholder-slate-400 font-medium" placeholder="Ex: João Silva">
                         </div>
 
                         <!-- CPF -->
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">CPF *</label>
-                            <input type="text" id="cpf" required inputmode="numeric" maxlength="14" class="block w-full border border-slate-300 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow bg-slate-50 focus:bg-white text-slate-800 placeholder-slate-400" placeholder="123.456.789-00">
+                        <div class="transform transition-all duration-300">
+                            <label class="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                                <i class="fas fa-id-card text-red-600 text-lg"></i> CPF <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="cpf" required inputmode="numeric" maxlength="14" class="block w-full border-2 border-slate-300 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:shadow-lg transition-all bg-slate-50 focus:bg-white text-slate-800 placeholder-slate-400 font-mono font-medium" placeholder="123.456.789-00">
                         </div>
 
                         <!-- Status -->
-                        <div id="statusContainer">
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Status *</label>
-                            <select id="status" class="block w-full border border-slate-300 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow bg-slate-50 focus:bg-white text-slate-800">
-                                <option value="">Selecione</option>
-                                <option value="Ativo">Ativo</option>
-                                <option value="Inativo">Inativo</option>
+                        <div id="statusContainer" class="transform transition-all duration-300">
+                            <label class="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                                <i class="fas fa-toggle-on text-red-600 text-lg"></i> Status <span class="text-red-500">*</span>
+                            </label>
+                            <select id="status" class="block w-full border-2 border-slate-300 rounded-xl shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:shadow-lg transition-all bg-slate-50 focus:bg-white text-slate-800 font-medium appearance-none" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23dc2626%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3e%3cpolyline points=%226 9 12 15 18 9%22%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.5em 1.5em; padding-right: 2.5rem;">
+                                <option value="">Selecione o status</option>
+                                <option value="Ativo">✓ Ativo - Pode entrar</option>
+                                <option value="Inativo">✗ Inativo - Bloqueado</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="pt-4 flex flex-col gap-3 border-t border-slate-200 sm:flex-row">
-                        <button type="button" id="btnCancelarModal" class="flex-1 bg-white border border-slate-300 text-slate-700 py-3 px-4 rounded-xl shadow-sm text-sm font-bold hover:bg-slate-50 transition duration-200">
-                            Cancelar
+                    <div class="pt-6 flex flex-col gap-3 border-t-2 border-slate-200 sm:flex-row">
+                        <button type="button" id="btnCancelarModal" class="flex-1 bg-white border-2 border-slate-300 text-slate-700 py-3 px-4 rounded-xl shadow-sm text-sm font-bold hover:bg-slate-50 hover:border-slate-400 active:scale-95 transition-all duration-200 transform flex items-center justify-center gap-2">
+                            <i class="fas fa-times"></i> Cancelar
                         </button>
-                        <button type="submit" class="flex-1 bg-red-600 text-white py-3 px-4 rounded-xl shadow-md shadow-red-200 text-sm font-bold hover:bg-red-700 transition duration-200 hover:-translate-y-0.5 transform">
-                            <i class="fas fa-save mr-2"></i> Salvar Aluno
+                        <button type="submit" class="flex-1 bg-gradient-to-r from-red-600 to-orange-600 text-white py-3 px-4 rounded-xl shadow-lg shadow-red-200 text-sm font-bold hover:from-red-700 hover:to-orange-700 hover:shadow-xl active:scale-95 transition-all duration-200 transform flex items-center justify-center gap-2">
+                            <i class="fas fa-save"></i> Salvar Aluno
                         </button>
                     </div>
                 </form>
