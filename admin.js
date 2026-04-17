@@ -144,7 +144,7 @@ loginForm.addEventListener('submit', async (e) => {
             
             Toast.fire({
                 icon: 'success',
-                title: `Bem-vindo, ${usuario.charAt(0).toUpperCase() + usuario.slice(1)}!`,
+                title: 'Bem-vindo, Admin!',
                 text: 'Conectado à API com sucesso'
             });
         } else {
