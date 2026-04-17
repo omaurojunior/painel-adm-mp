@@ -698,6 +698,21 @@ alunoForm.addEventListener('submit', async (e) => {
         return;
     }
 
+    const cpfNumerico = cpf.replace(/\D/g, '');
+    const cpfRepetido = alunos.some(aluno => {
+        const alunoCpf = (aluno.cpf || '').replace(/\D/g, '');
+        return alunoCpf === cpfNumerico && String(aluno.id) !== String(id);
+    });
+
+    if (cpfRepetido) {
+        Toast.fire({
+            icon: 'error',
+            title: 'CPF já existente',
+            text: 'O CPF informado já está cadastrado para outro aluno.'
+        });
+        return;
+    }
+
     // Para edição, validar status
     if (id && !status) {
         Toast.fire({
@@ -782,6 +797,12 @@ alunoForm.addEventListener('submit', async (e) => {
                 title: 'Sessão expirada',
                 text: 'Faça login novamente para continuar'
             });
+        } else if (resposta.status === 409) {
+            Toast.fire({
+                icon: 'error',
+                title: 'CPF já existente',
+                text: 'O CPF informado já está cadastrado no sistema.'
+            });
         } else if (resposta.status === 400 && !id) {
             // Para criação, se erro 400, ainda recarregar pois pode ter sido criado
             console.log('Erro 400 na criação, mas tentando recarregar alunos...');
@@ -797,14 +818,24 @@ alunoForm.addEventListener('submit', async (e) => {
             try {
                 const erro = await resposta.json();
                 console.log('Erro JSON:', erro);
-                logDebug('Salvar Erro', erro.mensagem);
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Erro ao salvar aluno',
-                    text: erro.mensagem || 'Tente novamente'
-                });
+                const mensagemErro = erro.mensagem || erro.message || 'Tente novamente';
+                if (/cpf/i.test(mensagemErro) || /ja existente|já existente|duplicado|duplicate|already exists/i.test(mensagemErro)) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'CPF já existente',
+                        text: mensagemErro
+                    });
+                } else {
+                    logDebug('Salvar Erro', mensagemErro);
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Erro ao salvar aluno',
+                        text: mensagemErro
+                    });
+                }
             } catch (e) {
-                console.log('Erro não é JSON:', await resposta.text());
+                const textoResposta = await resposta.text();
+                console.log('Erro não é JSON:', textoResposta);
                 Toast.fire({
                     icon: 'error',
                     title: 'Erro ao salvar aluno',
