@@ -690,6 +690,14 @@ alunoForm.addEventListener('submit', async (e) => {
         return;
     }
 
+    if (cpf.length !== 11) {
+        Toast.fire({
+            icon: 'warning',
+            title: 'CPF deve ter 11 dígitos!'
+        });
+        return;
+    }
+
     // Para edição, validar status
     if (id && !status) {
         Toast.fire({
@@ -712,6 +720,8 @@ alunoForm.addEventListener('submit', async (e) => {
         cpf,
         status: statusFinal === 'Ativo' ? true : false
     };
+
+    console.log('Dados enviados para API:', dadosAluno);
 
     try {
         const requestHeaders = {
@@ -772,14 +782,35 @@ alunoForm.addEventListener('submit', async (e) => {
                 title: 'Sessão expirada',
                 text: 'Faça login novamente para continuar'
             });
-        } else {
-            const erro = await resposta.json();
-            logDebug('Salvar Erro', erro.mensagem);
+        } else if (resposta.status === 400 && !id) {
+            // Para criação, se erro 400, ainda recarregar pois pode ter sido criado
+            console.log('Erro 400 na criação, mas tentando recarregar alunos...');
+            fecharModal();
+            carregarAlunos();
             Toast.fire({
-                icon: 'error',
-                title: 'Erro ao salvar aluno',
-                text: erro.mensagem || 'Tente novamente'
+                icon: 'warning',
+                title: 'Possível erro na API',
+                text: 'Aluno pode ter sido criado. Verifique a lista.'
             });
+        } else {
+            console.log('Erro na resposta:', resposta.status, resposta.statusText);
+            try {
+                const erro = await resposta.json();
+                console.log('Erro JSON:', erro);
+                logDebug('Salvar Erro', erro.mensagem);
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Erro ao salvar aluno',
+                    text: erro.mensagem || 'Tente novamente'
+                });
+            } catch (e) {
+                console.log('Erro não é JSON:', await resposta.text());
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Erro ao salvar aluno',
+                    text: 'Resposta inválida da API'
+                });
+            }
         }
     } catch (erro) {
         console.error('Erro ao salvar:', erro);
