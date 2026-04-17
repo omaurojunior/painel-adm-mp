@@ -10,7 +10,7 @@
 // Se CONFIG não estiver definida, usar padrão global
 if (typeof CONFIG === 'undefined') {
   window.CONFIG = {
-    API_BASE_URL: 'https://api-catraca-mu.vercel.app',
+    API_BASE_URL: 'https://api-catraca-mu.vercel.appiesfjirjig',
     DEBUG: true,
     TIMEOUT_REQUISICAO: 10000,
     USAR_LOCAL_STORAGE: true
