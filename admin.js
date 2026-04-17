@@ -223,8 +223,9 @@ btnLogout.addEventListener('click', () => {
             storage.removeItem('tokenAutenticacao');
             loginAtivo = false;
             tokenAutenticacao = null;
-            mostrarLogin();
             loginForm.reset();
+            Swal.close();
+            window.location.reload();
         }
     });
 });
