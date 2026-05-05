@@ -579,19 +579,26 @@ nomeInput.addEventListener('input', (e) => {
 cpfInput.addEventListener('input', (e) => {
     // Se é edição e CPF não foi modificado, não validar
     if (!modoCriacaoNovo && e.target.value === (alunoAtual?.cpf || '')) {
-        cpfInput.classList.remove('border-red-400', 'border-green-400', 'bg-red-50');
+        cpfInput.classList.remove('border-red-400', 'border-green-400', 'bg-red-50', 'bg-green-50');
         cpfInput.classList.add('border-slate-300');
         return;
     }
 
     const cpf = e.target.value;
-    if (cpf.replace(/\D/g, '').length < 11) {
-        cpfInput.classList.remove('border-green-400', 'border-yellow-400', 'border-slate-300', 'bg-red-50');
+    const cpfNumerico = cpf.replace(/\D/g, '');
+
+    // Enquanto digita, não mostra erro (só limpa)
+    if (cpfNumerico.length < 11) {
+        cpfInput.classList.remove('border-red-400', 'border-green-400', 'bg-red-50', 'bg-green-50');
         cpfInput.classList.add('border-slate-300');
-    } else if (cpf && !validarCPF(cpf)) {
-        cpfInput.classList.remove('border-green-400', 'border-slate-300', 'bg-red-50');
+        return;
+    }
+
+    // Só valida se tiver 11 dígitos
+    if (!validarCPF(cpf)) {
+        cpfInput.classList.remove('border-green-400', 'border-slate-300', 'bg-green-50');
         cpfInput.classList.add('border-red-400', 'bg-red-50');
-    } else if (cpf && validarCPF(cpf)) {
+    } else {
         cpfInput.classList.remove('border-red-400', 'border-slate-300', 'bg-red-50');
         cpfInput.classList.add('border-green-400', 'bg-green-50');
     }
