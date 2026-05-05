@@ -587,14 +587,14 @@ cpfInput.addEventListener('input', (e) => {
     const cpf = e.target.value;
     const cpfNumerico = cpf.replace(/\D/g, '');
 
-    // Enquanto digita, não mostra erro (só limpa)
-    if (cpfNumerico.length < 11) {
+    // Só valida se CPF estiver completo (com máscara ou só números)
+    if (cpf.length < 14 && cpfNumerico.length < 11) {
         cpfInput.classList.remove('border-red-400', 'border-green-400', 'bg-red-50', 'bg-green-50');
         cpfInput.classList.add('border-slate-300');
         return;
     }
 
-    // Só valida se tiver 11 dígitos
+    // Só valida se tiver 14 caracteres (com máscara) ou 11 dígitos
     if (!validarCPF(cpf)) {
         cpfInput.classList.remove('border-green-400', 'border-slate-300', 'bg-green-50');
         cpfInput.classList.add('border-red-400', 'bg-red-50');
@@ -830,7 +830,8 @@ alunoForm.addEventListener('submit', async (e) => {
 
     const id = alunoIdInput.value;
     const nome = nomeInput.value.trim();
-    const cpf = cpfInput.value.trim().replace(/\D/g, '');
+    const cpf = cpfInput.value.trim();
+    const cpfNumerico = cpf.replace(/\D/g, '');
     const status = statusInput.value;
 
     // Validação
@@ -847,11 +848,11 @@ alunoForm.addEventListener('submit', async (e) => {
 
     // Validação de CPF - Permitir CPF original em edição sem revalidar
     const cpfOriginal = alunoAtual?.cpf?.replace(/\D/g, '') || '';
-    const cpfMudou = id && cpf !== cpfOriginal;
-    
+    const cpfMudou = id && cpfNumerico !== cpfOriginal;
+
     // Validar CPF apenas se: é criação OU é edição e mudou o CPF
     if (!id || cpfMudou) {
-        if (!cpf || !validarCPF(cpf) || cpf.length !== 11) {
+        if (cpfNumerico.length !== 11 || !validarCPF(cpfNumerico)) {
             Toast.fire({
                 icon: 'warning',
                 title: 'CPF inválido',
@@ -863,7 +864,6 @@ alunoForm.addEventListener('submit', async (e) => {
         }
     }
 
-    const cpfNumerico = cpf.replace(/\D/g, '');
     const cpfRepetido = alunos.some(aluno => {
         const alunoCpf = (aluno.cpf || '').replace(/\D/g, '');
         return alunoCpf === cpfNumerico && String(aluno.id) !== String(id);
@@ -898,7 +898,7 @@ alunoForm.addEventListener('submit', async (e) => {
 
     const dadosAluno = {
         nome,
-        cpf,
+        cpf: cpfNumerico,
         status: statusFinal === 'Ativo' ? true : false
     };
 
